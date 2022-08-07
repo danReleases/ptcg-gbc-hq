@@ -1,10 +1,5 @@
 prev_pokemon = 0
-mapfiles = require("sets/base1")
-additional = require("sets/base4")
-for k,v in pairs(additional) do 
-	mapfiles[k] = v 
-end
-
+mapfiles = require("sets/custom")
 gui.use_surface("client")
 while true do
     wx = client.screenwidth() - client.borderwidth()
@@ -12,6 +7,8 @@ while true do
 	xdiff = 880
 	ydiff = 660
 	mem = tostring(memory.read_u8(52267))
+	gui.text(0,0,mem) -- curr pokemon
+
 	clicked = input.getmouse()["Left"]
 	if clicked then
 		gui.clearGraphics()
@@ -25,6 +22,7 @@ while true do
 			-- draw from full card:CLIENT
 			-- "Pokemon": [65, 100, 470, 328],
 			-- gui.drawImageRegion(fname, 65, 100, 470, 328, wx - xdiff, wy - ydiff, xdiff, ydiff)		
+			-- gui.drawImageRegion(fname, 65, 100, 470, 328, ((wx - client.borderwidth())/3.3) + client.borderwidth(), client.screenheight()/4.45, xdiff, ydiff)			
 
 			-- draw bottom right:CLIENT
 			-- gui.drawImage(fname, wx - xdiff, wy - ydiff, xdiff, ydiff)
