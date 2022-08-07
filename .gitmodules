@@ -1,0 +1,3 @@
+[submodule "poketcg"]
+	path = poketcg
+	url = https://github.com/pret/poketcg.git
