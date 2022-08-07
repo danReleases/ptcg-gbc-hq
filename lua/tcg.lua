@@ -1,18 +1,5 @@
 prev_pokemon = 0
-mapfiles = require("sets/ecard1")
-base4 = require("sets/base4")
-base1 = require("sets/base1")
-
-for k,v in pairs(base4) do 
-	mapfiles[k] = v 
-end
-
-for k,v in pairs(base1) do 
-	mapfiles[k] = v 
-end
-
-print(mapfiles)
-
+mapfiles = require("sets/custom")
 gui.use_surface("client")
 while true do
     wx = client.screenwidth() - client.borderwidth()
