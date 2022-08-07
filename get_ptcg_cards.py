@@ -10,8 +10,11 @@ from PIL import Image
 from slpp import slpp
 from unidecode import unidecode
 
+
 class TCG:
-    def __init__(self, api_key: str, ptcg_map: dict, img_regions: dict = None, sets: dict = None):
+    def __init__(
+        self, api_key: str, ptcg_map: dict, img_regions: dict = None, sets: dict = None
+    ):
         self.key_headers = {"x-api-key": api_key}
         self.ptcg_map = ptcg_map
         self.img_regions = img_regions
@@ -22,7 +25,7 @@ class TCG:
             sets = glob.glob("sets/*.json")
             sets = {st.split("\\")[-1].split(".")[0]: st for st in sets}
             self.sets = sets
-    
+
     @classmethod
     def remove_non_ascii(cls, text):
         sp_chars = {
@@ -36,7 +39,7 @@ class TCG:
 
     @classmethod
     def _make_lua_map(cls, set_id, file_map):
-        with open(f"lua/sets/{set_id}.lua", 'w+') as f:
+        with open(f"lua/sets/{set_id}.lua", "w+") as f:
             f.write(f"return {slpp.encode(file_map)}")
         return True
 
@@ -44,13 +47,18 @@ class TCG:
         files = glob.glob(f"sets/images/{set_id}/*.png")
         for f in files:
             supertype = f.split("_")[-1].split(".")[0]
-            img = Image.open(f)            
+            img = Image.open(f)
             if crop and set_id in self.img_regions:
                 region = self.img_regions[set_id][supertype]
-                region = (region[0], region[1], region[0] + region[2], region[1] + region[3])
-                img = img.crop(region)    
+                region = (
+                    region[0],
+                    region[1],
+                    region[0] + region[2],
+                    region[1] + region[3],
+                )
+                img = img.crop(region)
             if quality > 0:
-                img.save(f, 'JPEG', quality=quality)
+                img.save(f, "JPEG", quality=quality)
             else:
                 img.save(f)
 
@@ -71,13 +79,15 @@ class TCG:
                 # update dict
                 file_map[mem_value] = fname
                 if pk in remaining_map:
-                    remaining_map.remove(pk)    # TODO: de-map before save new images
-        
+                    remaining_map.remove(pk)  # TODO: de-map before save new images
+
         if remaining_map:
             logging.error(f"{set_id}: Unable to map: {remaining_map}.")
         return file_map
 
-    def save_images(self, set_id: str, start=None, end=None, get_hi_res=True, compress=0):
+    def save_images(
+        self, set_id: str, start=None, end=None, get_hi_res=True, compress=0
+    ):
         if not set_id in self.sets:
             return False
         dir = f"sets/images/{set_id}"
@@ -91,8 +101,14 @@ class TCG:
         end = len(set_data) if end is None else end
 
         for card in set_data[start:end]:
-            card["supertype"] = TCG.remove_non_ascii(card['supertype'])
-            card["name"] = "".join([c for c in TCG.remove_non_ascii(card['name']).upper() if c == " " or (ord(c) >= 65 and ord(c) <= 90)])
+            card["supertype"] = TCG.remove_non_ascii(card["supertype"])
+            card["name"] = "".join(
+                [
+                    c
+                    for c in TCG.remove_non_ascii(card["name"]).upper()
+                    if c == " " or (ord(c) >= 65 and ord(c) <= 90)
+                ]
+            )
 
             res = "large" if get_hi_res else "small"
             url = card["images"][res]
@@ -152,10 +168,11 @@ class TCG:
 
 if __name__ == "__main__":
     json_file_path = "regions.json"
-    with open(json_file_path, 'r') as j:
+    with open(json_file_path, "r") as j:
         img_regions = json.loads(j.read())
-        
+
     from poketcg.tools.constants import cards
+
     cards = {v: k for k, v in cards.items()}
     cards_base = {}
     for k, v in cards.items():
@@ -163,7 +180,7 @@ if __name__ == "__main__":
             if k[-1] == "1":
                 k = k[:-1]
             else:
-                continue            
+                continue
         cards_base[k] = v
 
     API_KEY = os.environ.get("POKEMONTCG_IO_API_KEY")
