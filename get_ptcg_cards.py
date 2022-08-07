@@ -72,12 +72,13 @@ class TCG:
             pokemon = fname.split("_")[0].replace(" ", "_")
             if pokemon in self.ptcg_map:
                 pk = self.ptcg_map[pokemon]
-                mem_value = str(pk)
+                mem_value = str(pk[0])
                 fname = f"{mem_value}_{fname}"
                 fname = "\\".join([*(f.split("\\")[:-1]), "\\\\", fname])
                 os.replace(f, fname)
                 # update dict
-                file_map[mem_value] = fname
+                for mem in pk:
+                    file_map[str(mem)] = fname
                 if pk in remaining_map:
                     remaining_map.remove(pk)  # TODO: de-map before save new images
 
@@ -119,7 +120,9 @@ class TCG:
                 f.write(img)
         if compress > 0 or set_id in self.img_regions:
             self._process_images(set_id, True, compress)
-        return TCG._make_lua_map(set_id, self._map(set_id))
+
+        file_map = self._map(set_id)
+        return TCG._make_lua_map(set_id, file_map)
 
     def get(self, set_name: str, update=False):
         new_sets = (
@@ -172,16 +175,14 @@ if __name__ == "__main__":
         img_regions = json.loads(j.read())
 
     from poketcg.tools.constants import cards
+    from collections import defaultdict
 
     cards = {v: k for k, v in cards.items()}
-    cards_base = {}
+    cards_base = defaultdict(list)
     for k, v in cards.items():
         if k[-1] in ("1", "2", "3"):
-            if k[-1] == "1":
-                k = k[:-1]
-            else:
-                continue
-        cards_base[k] = v
+            k = k[:-1]
+        cards_base[k].extend([v])
 
     API_KEY = os.environ.get("POKEMONTCG_IO_API_KEY")
 
