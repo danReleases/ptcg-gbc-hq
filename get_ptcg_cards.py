@@ -6,6 +6,7 @@ import requests
 import os
 import logging
 import glob
+from slpp import slpp
 
 
 class TCG:
@@ -19,9 +20,15 @@ class TCG:
             sets = glob.glob("sets/*.json")
             sets = {st.split("\\")[-1].split(".")[0]: st for st in sets}
             self.sets = sets
+    
+    def _make_lua_map(self, set_id, file_map):
+        with open(f"lua/sets/{set_id}.lua", 'w+') as f:
+            f.write(f"return {slpp.encode(file_map)}")
+        return True
 
-    def _map(self, set_id):
+    def _map(self, set_id: str):
         remaining_map = list(self.ptcg_map.values())
+        file_map = {}
         files = glob.glob(f"sets/images/{set_id}/*.png")
         for f in files:
             fname = f.split("\\")[-1]
@@ -31,13 +38,16 @@ class TCG:
                 pk = self.ptcg_map[pokemon]
                 mem_value = str(pk)
                 fname = f"{mem_value}_{fname}"
-                fname = "\\".join([*(f.split("\\")[:-1]), fname])
+                fname = "\\".join([*(f.split("\\")[:-1]), "\\\\", fname])
                 os.replace(f, fname)
+                # update dict
+                file_map[mem_value] = fname
                 if pk in remaining_map:
-                    remaining_map.remove(pk)
+                    remaining_map.remove(pk)    # TODO: de-map before save new images
+        
         if remaining_map:
             logging.error(f"{set_id}: Unable to map: {remaining_map}.")
-        return remaining_map
+        return file_map
 
     def save_images(self, set_id: str, start=None, end=None, hi_res=True):
         if not set_id in self.sets:
@@ -65,7 +75,7 @@ class TCG:
             with open(img_file, "wb+") as f:
                 f.write(img)
 
-        return self._map(set_id)
+        return self._make_lua_map(set_id, self._map(set_id))
 
     def get(self, set_name: str, update=False):
         new_sets = (
@@ -119,6 +129,6 @@ if __name__ == "__main__":
     API_KEY = os.environ.get("POKEMONTCG_IO_API_KEY")
 
     tcg = TCG(API_KEY, cards)
-    bases = tcg.get("base1")
+    bases = tcg.get("base4")
     for b in bases:
-        tcg.save_images(b, 0, 1)
+        tcg.save_images(b)
