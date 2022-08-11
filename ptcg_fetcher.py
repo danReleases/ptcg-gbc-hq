@@ -28,7 +28,8 @@ class TCG:
                 self._add_set(cardset)
 
     def _add_set(self, cardset: TCGSet, save=False) -> None:
-        cardset.save_json(f"sets/{cardset.id}.json")
+        if save:
+            cardset.save_json(f"sets/{cardset.id}.json")
         self.cardsets[cardset.id] = cardset
         if not os.path.exists(f"sets/images/{cardset.id}"):
             os.makedirs(f"sets/images/{cardset.id}")
