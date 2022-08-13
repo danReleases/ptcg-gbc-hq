@@ -44,7 +44,8 @@ class TCG:
             return
         areas = self.regions[set_id] if set_id in self.regions else None
         files_map = cardset.save_images(re_fetch=re_fetch)
-        dir = f"sets/images/{set_id}/processed"
+        curr_dir_path = str(os.path.abspath(os.getcwd())).replace("\\", "//")    # set values to full path to avoid issues loading images in LUA
+        dir = f"{curr_dir_path}/sets/images/{set_id}/processed"
         memory_map = {}
         for poke, values in files_map.items():
             fname = values[0]
@@ -113,7 +114,7 @@ class TCG:
             found_sets.append(cardset)
             if not cardset_id in self.cardsets:
                 self._add_set(found_sets[-1], save=True)
-        return [set.id for set in found_sets]
+        return found_sets
 
 
 if __name__ == "__main__":
@@ -134,5 +135,7 @@ if __name__ == "__main__":
         cards_base[k].extend([v])
 
     tcg = TCG(key, cards_base, img_regions)
-    sets_in_order = tcg.fetch("base")[::-1]
+    sets_in_order = []
+    sets_in_order.extend(list(map(str, tcg.fetch("base")))[::-1])
+    sets_in_order.extend(list(map(str, tcg.fetch("hgss1"))))
     tcg.build_lua(sets_in_order, "lua/sets/custom.lua")
