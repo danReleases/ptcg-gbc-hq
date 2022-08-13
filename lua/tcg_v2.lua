@@ -23,7 +23,7 @@ local function draw_card(id, pos)
         elseif pos == "summary" then     
             gui.clearGraphics()              
             x = client.borderwidth() + ((client.screenwidth() - (client.borderwidth() * 2)) / 3.4)
-            y = client.screenheight() / 6
+            y = client.screenheight() / 4.6
         elseif pos == "large_card" then            
             gui.clearGraphics()                 
             x = client.borderwidth() + ((client.screenwidth() - (client.borderwidth() * 2)) / 3.4)
