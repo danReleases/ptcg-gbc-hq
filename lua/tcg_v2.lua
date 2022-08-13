@@ -20,7 +20,8 @@ local function draw_card(id, pos)
         elseif pos == "main_2" then            
             x = client.borderwidth()
             y = client.screenheight() / 3.7
-        elseif pos == "summary" then                   
+        elseif pos == "summary" then     
+            gui.clearGraphics()              
             x = client.borderwidth() + ((client.screenwidth() - (client.borderwidth() * 2)) / 3.4)
             y = client.screenheight() / 6
         elseif pos == "large_card" then            
@@ -70,6 +71,7 @@ event.onmemoryexecute(draw_list_screen, 21950, "list", "System Bus") -- DrawCard
 event.onmemoryexecute(draw_main_screen, 20385, "main", "ROM") -- DrawDuelMainScene.draw
 event.onmemoryexecute(set_pokemon, 22990, "set", "System Bus")  -- LoadLoded1CardGFX
 event.onmemoryexecute(large_card, 24256, "large_card", "System Bus")  -- LargeCardTileData
+event.onmemoryexecute(draw_card_summary, 22413, "summary", "System Bus") -- OpenCardPage
 
 while true do
 	clicked = input.getmouse()["Left"]
