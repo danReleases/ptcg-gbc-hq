@@ -57,3 +57,6 @@ class TCGSet:
             data = json.loads(f.read())
         set_id = data[0]["set"]["id"]
         return TCGSet(api_key, set_id, data)
+
+    def __str__(self):
+        return str(self.id)

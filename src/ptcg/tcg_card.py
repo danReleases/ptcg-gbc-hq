@@ -31,3 +31,6 @@ class TCGCard:
         img = requests.get(url).content
         with open(fname, "wb+") as f:
             f.write(img)
+    
+    def __str__(self):
+        return str(self.normalized_name)
