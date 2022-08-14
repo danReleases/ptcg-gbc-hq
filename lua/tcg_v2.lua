@@ -66,7 +66,6 @@ end
 local function in_play_area()
     -- cards shown in the play area (2 cards)
     mode = "in_pa"
-    print(mode)
     gui.clearGraphics()        
     draw_card(pokemon, "in_pa_1")
     draw_card(pokemon_prev, "in_pa_2")
@@ -75,7 +74,6 @@ end
 local function your_play_area()
     -- card in your play area (1 card)
     mode = "your_pa"
-    print(mode)
     gui.clearGraphics()        
     draw_card(pokemon_prev, mode)
 end
@@ -83,7 +81,6 @@ end
 local function opponent_play_area()
     -- card in opponent's play area (1 card)
     mode = "opp_pa"
-    print(mode)
     gui.clearGraphics()        
     draw_card(pokemon, mode)
 end
