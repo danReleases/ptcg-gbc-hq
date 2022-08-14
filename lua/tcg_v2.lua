@@ -66,6 +66,7 @@ end
 local function in_play_area()
     -- cards shown in the play area (2 cards)
     mode = "in_pa"
+    print(mode)
     gui.clearGraphics()        
     draw_card(pokemon, "in_pa_1")
     draw_card(pokemon_prev, "in_pa_2")
@@ -74,6 +75,7 @@ end
 local function your_play_area()
     -- card in your play area (1 card)
     mode = "your_pa"
+    print(mode)
     gui.clearGraphics()        
     draw_card(pokemon_prev, mode)
 end
@@ -81,6 +83,7 @@ end
 local function opponent_play_area()
     -- card in opponent's play area (1 card)
     mode = "opp_pa"
+    print(mode)
     gui.clearGraphics()        
     draw_card(pokemon, mode)
 end
@@ -117,7 +120,7 @@ event.onmemoryexecute(set_pokemon, 22990, "set", "System Bus")  -- LoadLoded1Car
 event.onmemoryexecute(large_card, 24256, "large_card", "System Bus")  -- LargeCardTileData
 event.onmemoryexecute(draw_card_summary, 22413, "summary", "System Bus") -- OpenCardPage
 
-offset_in_play_area = offset_rom(16442, 2) -- 0x403A : ROM2
+offset_in_play_area = offset_rom(17103, 2) -- 0x42CF : ROM2
 offset_your_play_area = offset_rom(16466, 2) -- 0x4052 : ROM2
 offset_opp_play_area = offset_rom(16639, 2) -- 0x40FF : ROM2
 
