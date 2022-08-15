@@ -1,5 +1,6 @@
-pokemon = nil
-pokemon_prev = nil
+duel_pokemons = {nil, nil}
+other_pokemon = nil
+
 mode = nil
 mapfiles = require("sets/custom")
 gui.use_surface("client")
@@ -67,37 +68,46 @@ local function in_play_area()
     -- cards shown in the play area (2 cards)
     mode = "in_pa"
     gui.clearGraphics()        
-    draw_card(pokemon, "in_pa_1")
-    draw_card(pokemon_prev, "in_pa_2")
+    draw_card(duel_pokemons[2], "in_pa_1")
+    draw_card(duel_pokemons[1], "in_pa_2")
 end
 
 local function your_play_area()
     -- card in your play area (1 card)
     mode = "your_pa"
     gui.clearGraphics()        
-    draw_card(pokemon_prev, mode)
+    draw_card(duel_pokemons[1], mode)
 end
 
 local function opponent_play_area()
     -- card in opponent's play area (1 card)
     mode = "opp_pa"
     gui.clearGraphics()        
-    draw_card(pokemon, mode)
+    draw_card(duel_pokemons[2], mode)
 end
 
 local function set_pokemon()
     id = tostring(memory.read_u8(52267, "System Bus")) -- cc2b
-    if id ~= pokemon then
-        pokemon_prev = pokemon
-        pokemon = id
+    gui.clearGraphics()       
+    if mode ~= "in_pa" and mode ~= "your_pa" and mode ~= "opp_pa" then 
+        if mode == "main" then
+            if id ~= duel_pokemons[2] then
+                duel_pokemons[1] = duel_pokemons[2]
+                duel_pokemons[2] = id
+            end
+            draw_card(duel_pokemons[2], "main_1")
+            draw_card(duel_pokemons[1], "main_2")
+        else
+            if id ~= other_pokemon then
+                other_pokemon = id
+            end
+            draw_card(other_pokemon, mode)
+        end
     end
-    gui.clearGraphics()        
-    if mode == "main" then
-        draw_card(pokemon, "main_1")
-        draw_card(pokemon_prev, "main_2")
-    elseif mode ~= "in_pa" and mode ~= "your_pa" and mode ~= "opp_pa" then
-        draw_card(pokemon, mode)
-    end
+end
+
+local function clear_all()
+    gui.clearGraphics()
 end
 
 local function offset_rom(address, rom_bank)
@@ -107,11 +117,11 @@ local function offset_rom(address, rom_bank)
     -- address = rom_bank * rom_bank_size + system_bus_address - banked_rom_start_in_system_bus
     rom_bank_size = 16384 -- 0x4000
     offset = rom_bank * rom_bank_size
-    banked_rom_start_in_system_bus = (rom_bank - 1) * rom_bank_size    
+    banked_rom_start_in_system_bus = 16384 -- 0x4000 for Pokemon TCG GBC
     return offset + address - banked_rom_start_in_system_bus 
 end
 
-event.onmemoryexecute(draw_list_screen, 21950, "list", "System Bus") -- DrawCardListScreenLayout
+event.onmemoryexecute(draw_list_screen, 22002, "list", "ROM") -- DrawCardList
 event.onmemoryexecute(draw_main_screen, 20385, "main", "ROM") -- DrawDuelMainScene.draw
 event.onmemoryexecute(set_pokemon, 22990, "set", "System Bus")  -- LoadLoded1CardGFX
 event.onmemoryexecute(large_card, 24256, "large_card", "System Bus")  -- LargeCardTileData
@@ -124,6 +134,13 @@ offset_opp_play_area = offset_rom(16639, 2) -- 0x40FF : ROM2
 event.onmemoryexecute(in_play_area, offset_in_play_area, "in_pa", "ROM") -- In Play Area
 event.onmemoryexecute(your_play_area, offset_your_play_area, "your_pa", "ROM") -- Your (Player) Play Area
 event.onmemoryexecute(opponent_play_area, offset_opp_play_area, "opp_pa", "ROM") -- Opponent Play Area
+
+-- clear screen
+offset_glossary = offset_rom(17901, 6) -- 0x45ED : ROM6
+
+event.onmemoryexecute(clear_all, 25881, "poke_power", "ROM") -- DisplayUsePokemonPowerScreen
+event.onmemoryexecute(clear_all, 24651, "poke_list", "ROM") -- DisplayPlayAreaScreen
+event.onmemoryexecute(clear_all, offset_glossary, "glossary", "ROM") -- OpenGlossaryScreen
 
 while true do
 	clicked = input.getmouse()["Left"]
